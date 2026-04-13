@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveSafe Vision — Road Safety AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+
+    <!-- Ambient Background -->
+    <div class="ambient">
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+        <div class="ambient-orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Root Layout -->
+    <div class="root-layout">
+
+        <!-- ═══ LEFT SIDEBAR (narrow nav) ═══ -->
+        <nav class="left-nav glass">
+            <div class="nav-brand">
+                <div class="brand-icon">
+                    <i class="ph-fill ph-shield-check"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-name">DriveSafe</span>
+                    <span class="brand-sub">Vision AI</span>
+                </div>
+            </div>
+
+            <div class="nav-divider"></div>
+
+            <div class="nav-menu">
+                <button class="nav-item active" id="btn-live" title="Live Camera Feed">
+                    <i class="ph ph-broadcast"></i>
+                    <span>Live Feed</span>
+                </button>
+                <button class="nav-item" id="btn-upload" title="Static Image Analysis">
+                    <i class="ph ph-image-square"></i>
+                    <span>Image Upload</span>
+                </button>
+            </div>
+
+            <div class="nav-divider"></div>
+
+            <div class="nav-footer">
+                <div class="nav-status">
+                    <div class="status-dot pulsing" id="status-dot"></div>
+                    <span class="status-text" id="status-text">Live Active</span>
+                </div>
+                <div class="nav-clock" id="clock">00:00:00</div>
+            </div>
+        </nav>
+
+        <!-- ═══ MAIN AREA ═══ -->
+        <div class="main-area">
+
+            <!-- Top Bar -->
+            <header class="topbar glass">
+                <div class="topbar-left">
+                    <h1 class="page-title" id="page-title">
+                        <i class="ph ph-video-camera"></i>
+                        <span>Live Edge Stream</span>
+                    </h1>
+                    <div class="tag" id="mode-tag">Real-Time Detection</div>
+                </div>
+                <div class="topbar-metrics">
+                    <div class="metric-chip">
+                        <i class="ph ph-cpu"></i>
+                        <span class="metric-label">Model</span>
+                        <span class="metric-value gradient-text">YOLOv8n</span>
+                    </div>
+                    <div class="metric-chip">
+                        <i class="ph ph-timer"></i>
+                        <span class="metric-label" id="latency-label">Latency</span>
+                        <span class="metric-value" id="latency-val">~18ms</span>
+                    </div>
+                    <div class="metric-chip">
+                        <i class="ph ph-crosshair"></i>
+                        <span class="metric-label">Detections</span>
+                        <span class="metric-value accent-green" id="detection-count">—</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+
+                <!-- ═══ VIDEO / UPLOAD PANEL ═══ -->
+                <section class="vision-panel glass">
+
+                    <!-- Live View -->
+                    <div id="live-view" class="view active-view">
+                        <div class="stream-wrapper">
+                            <img id="live-stream-img" src="{{ url_for('video_feed') }}" alt="Live YOLOv8 Feed" />
+                            <!-- Overlay FX -->
+                            <div class="scan-line"></div>
+                            <div class="corner tl"></div>
+                            <div class="corner tr"></div>
+                            <div class="corner bl"></div>
+                            <div class="corner br"></div>
+                            <div class="stream-label">
+                                <span class="rec-dot"></span> LIVE
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload View -->
+                    <div id="upload-view" class="view hidden-view">
+                        <!-- Drop Zone -->
+                        <div class="drop-zone" id="drop-zone">
+                            <div class="drop-content">
+                                <div class="drop-icon-wrap">
+                                    <i class="ph-light ph-cloud-arrow-up"></i>
+                                </div>
+                                <p class="drop-title">Drop an image to analyze</p>
+                                <p class="drop-subtitle">Supports JPG, PNG, WEBP and more</p>
+                                <input type="file" id="file-input" accept="image/*" hidden />
+                                <button class="btn-upload" id="browse-btn">
+                                    <i class="ph ph-folder-open"></i> Browse Files
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Result -->
+                        <div class="upload-result hidden-view" id="result-area">
+                            <img id="uploaded-result-img" src="" alt="Detection Result" />
+                            <div class="result-overlay">
+                                <button class="btn-reset" id="reset-upload-btn">
+                                    <i class="ph ph-arrow-counter-clockwise"></i> Analyze Another
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+                <!-- ═══ RIGHT PANEL ═══ -->
+                <aside class="right-panel">
+
+                    <!-- Stats Card -->
+                    <div class="panel-card glass">
+                        <div class="card-header">
+                            <i class="ph ph-activity"></i>
+                            <h3>System Stats</h3>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-val gradient-text">YOLOv8n</span>
+                                <span class="stat-key">Architecture</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-val" id="fps-val">~30</span>
+                                <span class="stat-key">FPS</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-val">640×480</span>
+                                <span class="stat-key">Resolution</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-val accent-green" id="obj-count-card">—</span>
+                                <span class="stat-key">Objects</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confidence Chart Placeholder -->
+                    <div class="panel-card glass chart-card">
+                        <div class="card-header">
+                            <i class="ph ph-chart-bar"></i>
+                            <h3>Confidence Meter</h3>
+                        </div>
+                        <div class="confidence-bars" id="confidence-bars">
+                            <div class="conf-row">
+                                <span class="conf-label">Person</span>
+                                <div class="conf-bar-bg"><div class="conf-bar" style="width: 0%" data-target="82"></div></div>
+                                <span class="conf-pct">82%</span>
+                            </div>
+                            <div class="conf-row">
+                                <span class="conf-label">Vehicle</span>
+                                <div class="conf-bar-bg"><div class="conf-bar bar-blue" style="width: 0%" data-target="74"></div></div>
+                                <span class="conf-pct">74%</span>
+                            </div>
+                            <div class="conf-row">
+                                <span class="conf-label">Sign</span>
+                                <div class="conf-bar-bg"><div class="conf-bar bar-purple" style="width: 0%" data-target="61"></div></div>
+                                <span class="conf-pct">61%</span>
+                            </div>
+                            <div class="conf-row">
+                                <span class="conf-label">Bike</span>
+                                <div class="conf-bar-bg"><div class="conf-bar bar-orange" style="width: 0%" data-target="45"></div></div>
+                                <span class="conf-pct">45%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Log -->
+                    <div class="panel-card glass log-card">
+                        <div class="card-header">
+                            <i class="ph ph-terminal-window"></i>
+                            <h3>Event Log</h3>
+                            <button class="clear-btn" id="clear-log"><i class="ph ph-trash"></i></button>
+                        </div>
+                        <div class="log-scroll">
+                            <ul id="event-log">
+                                <li class="log-item log-setup"><span class="log-time">Now</span>System initialized</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </aside>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
