@@ -4,14 +4,7 @@ A premium, real-time object detection dashboard for road safety monitoring, buil
 
 ---
 
-## 🖥️ Demo Preview
 
-> Live camera-based object detection and static image analysis from a single browser dashboard.
-
-<div align="center">
-  <img src="screenshots/vehicle_detection_demo.png" width="48%" alt="Live Highway Vehicle Detection" />
-  <img src="screenshots/pedestrian_detection_demo.png" width="48%" alt="Pedestrian Crossing Detection" />
-</div>
 
 ![DriveSafe Vision UI](https://img.shields.io/badge/UI-Premium%20Dark%20Mode-blue)
 ![Model](https://img.shields.io/badge/Model-YOLOv8n-green)
